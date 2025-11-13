@@ -1,0 +1,4 @@
+{
+    "mass_tooltip": "Mass of the black hole in solar masses.",
+    "mdot_tooltip": "Accretion rate of the black hole in Eddington units."
+}
