@@ -6,7 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Accretion disk simulator">
     <title>Accretion Disks</title>
-    <link rel="stylesheet" href="./styles/style.css"> 
+    <link rel="stylesheet" href="./styles/style.css">
+    <link rel="stylesheet" href="./styles/tooltip.css">
     <link rel="icon" type="image/x-icon" href="/icons/favicon.png">
     <style>
 
@@ -20,31 +21,69 @@
             <!-- Parameters Menu -->
             <div class="menu">
                 <div class="menu-section">
-                    <label><strong>Parameters</strong></label>
+                    <label><strong>Black Hole Parameters</strong></label>
                     <div class="menu-row">
-                        <div for="input-mass" class="tooltip"><i>M</i>:
+                        <div for="input-mass" class="tooltip"><i>M</i> (M<sub>☉</sub>):
                             <span class="tooltiptext" id="tooltip-mass"></span>
                         </div>
                         <input type="number" min="2" step="1" max="100" value="10" id="input-mass">
                     </div>
+                    <div class="menu-row">
+                        <div for="input-spin" class="tooltip"><i>a</i>:
+                            <span class="tooltiptext" id="tooltip-spin"></span>
+                        </div>
+                        <input type="number" min="0" step="0.1" max="0.998" value="0.1" id="input-spin">
+                    </div>
+
+                    <div class="menu-row">
+                        <div for="eddington-luminosity" class="tooltip"><i>L</i><sub>Edd</sub> (10<sup>39</sup>):
+                            <span class="tooltiptext" id="tooltip-eddington-luminosity"></span>
+                        </div>
+                        <label id="eddington-luminosity"></label>
+                    </div>
+
+                    <div class="menu-row">
+                        <div for="isco-radius" class="tooltip"><i>R</i><sub>ISCO</sub> (km):
+                            <span class="tooltiptext" id="tooltip-isco-radius"></span>
+                        </div>
+                        <label id="isco-radius"></label>
+                    </div>
+                </div>
+
+
+                <div class="menu-section">
+                    <label><strong>Accretion Disk Parameters</strong></label>
+
                     <div class="menu-row">
                         <div for="input-mdot" class="tooltip"><i>&#7745;</i>:
                             <span class="tooltiptext" id="tooltip-mdot"></span>
                         </div>
                         <input type="number" min="0.001" step="0.1" max="10000" value="0.1" id="input-mdot">
                     </div>
+                    <div class="menu-row">
+                        <div for="input-alpha" class="tooltip"><i>&#945</i>:
+                            <span class="tooltiptext" id="tooltip-alpha"></span>
+                        </div>
+                        <input type="number" min="0" step="0.1" max="1" value="0.1" id="input-alpha">
+                    </div>
+                </div>
             </div>
-             </div>
-        <div class="buttons-container">
-            <button id="manual-button" class="banner-button">Manual</button>
-            <button id="donate-button" class="banner-button">Support</button>
-            <button id="about-button" class="banner-button">About</button>
-       
+
+
+            <div class="buttons-container">
+                <button id="manual-button" class="banner-button">Manual</button>
+                <button id="donate-button" class="banner-button">Support</button>
+                <button id="about-button" class="banner-button">About</button>
+
+            </div>
+
+        </div>
+        <!-- Right Plot -->
+        <div class="plot-container">
+            <div id="H_R"></div>
         </div>
 
-        <div class="visualization-container">
-            <canvas id="accretion-canvas"></canvas>
-        </div>
+    </div>
 
     <script type="module" src="./src/app.js"></script>
 
