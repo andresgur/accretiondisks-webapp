@@ -1,7 +1,9 @@
-import { ParametersMenu } from './parameterMenu.js';
+import { ParameterMenu } from './parameterMenu.js';
+import { Plot } from './plot.js'
 
 
 let parameterMenu;
+let HRplot;
 
 /**
  * Loads the translation file for the specified language and updates the parameter menu.
@@ -10,24 +12,27 @@ let parameterMenu;
  * @returns {Promise<void>} Resolves when translations are loaded and applied.
  */
 async function loadLanguage(lang = "en") {
-    
+
     const res = await fetch(`/locales/${lang}.json`);
-    translations = await res.json();
+    const translations = await res.json();
     parameterMenu.setLanguage(translations);
 }
 
-
-function onParameterUpdate() {  
-
-}
 function init() {
 
-    if (!parameterMenu) {
-        parameterMenu = new ParameterMenu(onParameterUpdate);
+    console.log("Initializing Plotly plot...");
+
+    if (!HRplot) {
+        HRplot = new Plot("<i>R</i> (<i>R<sub>ISCO</sub></i>)", "<i>H/R</i>");
     }
+
+    if (!parameterMenu) {
+        parameterMenu = new ParameterMenu((data) => {
+            HRplot.update(data);
+        });
+    }
+
     loadLanguage();
-
 }
-
 
 init();
