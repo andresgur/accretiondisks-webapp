@@ -2,5 +2,7 @@
     "mass_tooltip": "Mass of the black hole in solar masses.",
     "mdot_tooltip": "Accretion rate of the black hole in Eddington units.",
     "spin_tooltip": "Dimensionless spin of the black hole.",
-    "alpha_tooltip": "Shakura & Sunyaev 1973 viscosity parameter of the accretion disk."
+    "alpha_tooltip": "Shakura & Sunyaev 1973 viscosity parameterk.",
+    "isco-radius_tooltip": "Radius of the Innermost stable orbit",
+    "eddington-luminosity_tooltip": "Eddington luminosity of the compact object, assuming spherical symmetry."
 }

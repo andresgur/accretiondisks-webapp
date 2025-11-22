@@ -13,7 +13,9 @@ export class ParameterMenu {
 
         //labels
         this.LEddLabel = document.getElementById("eddington-luminosity");
+        this.leddTip = new ToolTipLabel("eddington-luminosity")
         this.RiscoLabel = document.getElementById("isco-radius")
+        this.RiscoTip = new ToolTipLabel("isco-radius");
         // mass
         this.massInput = document.getElementById("input-mass");
         this.massLabel = new ToolTipLabel("mass");
@@ -42,7 +44,7 @@ export class ParameterMenu {
 
         this.alphaInput.addEventListener("input", (event) => {
             this.alpha = parseFloat(event.target.value);
-            if (this.alpha <1. && this.alpha>0.) {
+            if (this.alpha < 1. && this.alpha > 0.) {
                 this.updateAlpha();
             };
         });
@@ -100,12 +102,13 @@ export class ParameterMenu {
             spin: this.spin
         };
 
+        console.log("Updating spin");
         const res = await fetch("http://localhost:8000/compactobject/spin_change", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(params),
         });
-         console.log("Updating spin");
+        console.log("JSON received")
         const data = await res.json();
         this.RiscoLabel.innerHTML = (data.Risco / 100000).toFixed(1)
         this.onPlotUpdate(data); // Trigger simulation update
@@ -163,6 +166,8 @@ export class ParameterMenu {
         this.alphaLabel.setLanguage(translations);
         this.massLabel.setLanguage(translations);
         this.spinLabel.setLanguage(translations);
+        this.RiscoTip.setLanguage(translations);
+        this.leddTip.setLanguage(translations);
     }
 
 
