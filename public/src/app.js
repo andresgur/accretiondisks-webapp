@@ -1,10 +1,13 @@
 import { ParameterMenu } from './parameterMenu.js';
-import { MdotPlot, HRPlot } from './plot.js'
+import { HRPlot } from './grid.js'
 
 
 let parameterMenu;
 let HRplot;
 let Mdotplot;
+let Qvisplot;
+let densityPlot;
+let temperaturePlot;
 
 /**
  * Loads the translation file for the specified language and updates the parameter menu.
@@ -14,7 +17,7 @@ let Mdotplot;
  */
 async function loadLanguage(lang = "en") {
 
-    const res = await fetch(`/locales/${lang}.json`);
+    const res = await fetch(`../locales/${lang}.json`);
     const translations = await res.json();
     parameterMenu.setLanguage(translations);
 }
@@ -26,17 +29,35 @@ function init() {
     if (!HRplot) {
         HRplot = new HRPlot("H_R", "<i>H/R</i>");
     }
-
+    /*
     if (!Mdotplot) {
-        Mdotplot = new MdotPlot("Mdot", "<i><span>M</span></i>(<i>R</i>)/<i><span>M</span><sub>0</sub></i>")
+        Mdotplot = new MdotPlot("Mdot", "<i><span>M</span></i>(<i>R</i>)/<i><span>M</span><sub>0</sub></i>");
     }
+
+    /*if (!densityPlot) {
+        densityPlot = new HRPlot("density", "<i>&#961;</i> (g/cm<sup>3</sup>)");
+    }
+
+    if (!Qvisplot) {
+        Qvisplot = new MdotPlot("Qvis", "<i>Q/Q</i><sub>vis</sub>")
+    }
+
+    */
 
     if (!parameterMenu) {
-        parameterMenu = new ParameterMenu((data) => {
-            HRplot.update(data);
-            Mdotplot.update(data);
-        });
+        parameterMenu = new ParameterMenu((data => {
+
+           HRplot.update(data.R, data.H, data.Mdot, data.Qrad, data.Qadv, data.vr);
+            //Mdotplot.update(data.R, data.Mdot);
+           // Qvisplot.update(data.R, data.Qrad)
+            //densityPlot.update(data.R, data.rho)
+        }), data => {
+            console.log("Alpha changed");
+        }
+    )
     }
+
+    
 
     loadLanguage();
 }
