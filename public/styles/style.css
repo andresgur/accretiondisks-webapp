@@ -5,6 +5,7 @@
             /* Top margin with the browser menu */
             min-height: 100vh;
             height: 100vh;
+            margin:0;
             background-color: white;
         }
 
@@ -16,6 +17,9 @@
             justify-content: space-between; /* spread items across the width with the menus on the sides*/
             /* Left menu + Main content + menu */
             gap: 5px;
+            overflow-x: hidden;
+            padding: 10px; /* space between the borders and the inner childs i.e. the menu to the left top and the right plot to the right and bottom*/
+            box-sizing: border-box;
         }
 
         .menu {
@@ -82,17 +86,30 @@
         }
 
                 /* Right-side plot area expands */
-        .plot-container {
-            flex:3;
-            flex-direction: "row";               /* occupies all remaining width */
+        .plot-area-wrapper {
+            flex: 4; /* Occupy all remaining space */
             display: flex;
-            padding: 10px;
+            flex-direction: row; /* Stack plots vertically */
+            padding: 0px; 
+            overflow: auto; /* Allow vertical scrolling if plots exceed height */
+            gap: 10px;
         }
-        /* Plotly div fills this area completely */
-        #plot {
+
+                /* Right-side plot area expands */
+        .plot-container {
             width: 100%;
-            height: 100%;
+            display: flex;
+            padding: 0px; /* space between plots */
+            overflow: hidden; /* Clips any content that might exceed boundaries */
+            box-sizing: border-box;
         }
+
+         /* Ensure Plotly's internal div uses available space */
+        .plotly-graph-div {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
         #buttonWrapper {
             position: absolute;
             width: 30px;
