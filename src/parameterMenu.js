@@ -1,8 +1,8 @@
 import { ToolTipLabel } from "./toolTipLabel.js";
 
 export class ParameterMenu {
-    constructor(onUpdate) {
-        this.onUpdate = onUpdate; // Callback to restart the simulation
+    constructor(onPlotUpdate) {
+        this.onPlotUpdate = onPlotUpdate; // Callback to restart the simulation
 
         // Initialize menu elements
         this.initParameters()
@@ -42,7 +42,9 @@ export class ParameterMenu {
 
         this.alphaInput.addEventListener("input", (event) => {
             this.alpha = parseFloat(event.target.value);
-            this.updateAlpha()
+            if (this.alpha <1. && this.alpha>0.) {
+                this.updateAlpha();
+            };
         });
 
 
@@ -53,19 +55,43 @@ export class ParameterMenu {
 
         this.spinInput.addEventListener("input", (event) => {
             this.spin = parseFloat(event.target.value);
-            if (this.spin > 1.) {
-                return
+            if (this.spin < 1. && this.spin > 0.) {
+                this.updateSpin();
             }
-            this.updateSpin()
         });
     }
 
     async updateMdot() {
+        const params = {
+            mdot: this.mdot
+        };
 
+        const res = await fetch("http://localhost:8000/accretiondisk/mdot_change", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(params),
+        });
+        console.log("Updating mdot");
+        const data = await res.json();
+        this.onPlotUpdate(data); // Trigger simulation update
+        console.log("Done");
     }
 
     async updateAlpha() {
+        const params = {
+            alpha: this.alpha
+        };
 
+        const res = await fetch("http://localhost:8000/accretiondisk/alpha_change", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(params),
+        });
+        console.log("Updating alpha")
+
+        const data = await res.json();
+        this.onPlotUpdate(data); // Trigger simulation update
+        console.log("Done");
     }
 
     async updateSpin() {
@@ -79,10 +105,11 @@ export class ParameterMenu {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(params),
         });
-
+         console.log("Updating spin");
         const data = await res.json();
         this.RiscoLabel.innerHTML = (data.Risco / 100000).toFixed(1)
-        //this.onUpdate(this.mass, this.spin); // Trigger simulation update
+        this.onPlotUpdate(data); // Trigger simulation update
+        console.log("Done");
 
     }
 
@@ -98,10 +125,11 @@ export class ParameterMenu {
         });
 
         const data = await res.json();
-
+        console.log("Updating mass");
         this.LEddLabel.innerHTML = (data.LEdd / 10 ** 39).toFixed(1)
         this.RiscoLabel.innerHTML = (data.Risco / 100000).toFixed(1)
-        //this.onUpdate(this.mass, this.spin); // Trigger simulation update
+        this.onPlotUpdate(data); // Trigger simulation update
+        console.log("Done");
     };
 
 
@@ -124,8 +152,8 @@ export class ParameterMenu {
 
         this.LEddLabel.innerHTML = (data.LEdd / 10 ** 39).toFixed(1)
         this.RiscoLabel.innerHTML = (data.Risco / 100000).toFixed(1)
-        this.onUpdate(data); // Trigger simulation update
-
+        this.onPlotUpdate(data); // Trigger simulation update
+        console.log("Done");
 
     };
 

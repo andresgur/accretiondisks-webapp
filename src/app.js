@@ -1,9 +1,10 @@
 import { ParameterMenu } from './parameterMenu.js';
-import { Plot } from './plot.js'
+import { MdotPlot, HRPlot } from './plot.js'
 
 
 let parameterMenu;
 let HRplot;
+let Mdotplot;
 
 /**
  * Loads the translation file for the specified language and updates the parameter menu.
@@ -23,12 +24,17 @@ function init() {
     console.log("Initializing Plotly plot...");
 
     if (!HRplot) {
-        HRplot = new Plot("<i>R</i> (<i>R<sub>ISCO</sub></i>)", "<i>H/R</i>");
+        HRplot = new HRPlot("H_R", "<i>H/R</i>");
+    }
+
+    if (!Mdotplot) {
+        Mdotplot = new MdotPlot("Mdot", "<i><span>M</span></i>(<i>R</i>)/<i><span>M</span><sub>0</sub></i>")
     }
 
     if (!parameterMenu) {
         parameterMenu = new ParameterMenu((data) => {
             HRplot.update(data);
+            Mdotplot.update(data);
         });
     }
 
