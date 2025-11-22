@@ -5,7 +5,9 @@ from fastapi.middleware.cors import CORSMiddleware
 # accretion disk imports
 from accretion_disks.compact_object import CompactObject
 from accretion_disks.shakurasunyaevdisk import ShakuraSunyaevDisk
+from accretion_disks.diskwithoutflows import CompositeDisk, InnerDisk
 from accretion_disks.constants import ccgs
+import numpy as np
 
 app = FastAPI()
 
@@ -26,25 +28,35 @@ class Params(BaseModel):
     spin: float
     mdot: float
     alpha: float
-    innerTorque: Optional[float] = -1e10 
+    innerTorque: Optional[float] = -0.1
 
 # Initial creation or full update
 @app.post("/create_compact_object") 
 def createCO(params: Params):
-    # This route explicitly requires both mass and spin.
+
     global CO # Use global if CO is defined outside the function scope
+    # This route explicitly requires both mass and spin.
     CO = CompactObject(params.mass, params.spin)
     LEdd = CO.LEdd
     Risco = CO.Risco
     global disk
-    disk = ShakuraSunyaevDisk(CO, params.mdot, alpha=params.alpha, Wrphi_in=params.innerTorque, N=300000)
+    global disktype
+    if params.mdot <1:
+        disk = ShakuraSunyaevDisk(CO, params.mdot, alpha=params.alpha, Wrphi_in=params.innerTorque, N=500000)
+        disktype = "SS73"
+    else:
+        disk = CompositeDisk(InnerDisk, CO=CO, mdot=params.mdot, alpha=params.alpha, Wrphi_in=params.innerTorque, N=200000)
+        disktype = "Outflows"
     return {
         "LEdd": LEdd, 
         "Risco":Risco,
         "H": (disk.H/ disk.R).tolist(),
         "R": (disk.R / disk.CO.Risco).tolist(),
         "Mdot": (disk.Mdot / disk.Mdot_0).tolist(),
-        "T": (disk.T / 1e8).tolist()
+        "Qrad": (disk.Qrad / disk.Qvis).tolist(),
+        "Qadv": (disk.Qadv / disk.Qvis).tolist(),
+        "vr": (disk.vr / ccgs).tolist(),
+       # "T": (disk.T / 1e8).tolist()
     }
 
 class MdotParams(BaseModel):
@@ -52,14 +64,21 @@ class MdotParams(BaseModel):
 
 @app.post("/accretiondisk/mdot_change")
 def changeMdot(params: MdotParams):
-    disk.mdot = params.mdot
+    if params.mdot <1:
+        disk.mdot = params.mdot
+    elif (disktype=="SS73"):
+        newdisk = CompositeDisk(InnerDisk, CO=CO, mdot=params.mdot, alpha=disk.alpha, Wrphi_in=disk.Wrphi_in, N=200000)
+    else:
+        disk.mdot = params.mdot
     
     return {
         "H": (disk.H/ disk.R).tolist(),
         "R": (disk.R / disk.CO.Risco).tolist(),
         "Mdot": (disk.Mdot / disk.Mdot_0).tolist(),
-        "v_r": (disk.vr / ccgs).tolist(),
-        "T": (disk.T / 10**8).tolist()
+        "Qrad": (disk.Qrad / disk.Qvis).tolist(),
+        "Qadv": (disk.Qadv / disk.Qvis).tolist(),
+        "vr": (disk.vr / ccgs).tolist(),
+        #"T": (disk.T / 1e8).tolist()
     }
 
 class AlphaParams(BaseModel):
@@ -70,11 +89,10 @@ def changeAlpha(params: AlphaParams):
     disk.alpha = params.alpha
 
     return {
-        "H": (disk.H/ disk.R).tolist(),
         "R": (disk.R / disk.CO.Risco).tolist(),
-        "Mdot": (disk.Mdot / disk.Mdot_0).tolist(),
-        "v_r": (disk.vr / ccgs).tolist(),
-        "T": (disk.T / 10**8).tolist()
+        "rho": (disk.rho / 10**3).tolist(),
+        "vr": (disk.vr / ccgs).tolist(),
+        #"T": (disk.T / 10**8).tolist()
     }
 
 
@@ -96,8 +114,10 @@ def changeMass(params: MassParams):
         "H": (disk.H/ disk.R).tolist(),
         "R": (disk.R / disk.CO.Risco).tolist(),
         "Mdot": (disk.Mdot / disk.Mdot_0).tolist(),
-        "v_r": (disk.vr / ccgs).tolist(),
-        "T": (disk.T / 10**8).tolist()
+        "Qrad": (disk.Qrad / disk.Qvis).tolist(),
+        "Qadv": (disk.Qadv / disk.Qvis).tolist(),
+        "vr": (disk.vr / ccgs).tolist(),
+        #"T": (disk.T / 1e8).tolist()
     }
 
 # Model for changing only spin
@@ -117,6 +137,8 @@ def changeSpin(params: SpinParams):
         "H": (disk.H/ disk.R).tolist(),
         "R": (disk.R / Risco).tolist(),
         "Mdot": (disk.Mdot / disk.Mdot_0).tolist(),
-        "v_r": (disk.vr / ccgs).tolist(),
-        "T": (disk.T / 10**8).tolist()
+        "Qrad": (disk.Qrad / disk.Qvis).tolist(),
+        "Qadv": (disk.Qadv / disk.Qvis).tolist(),
+        "vr": (disk.vr / ccgs).tolist(),
+        #"T": (disk.T / 1e8).tolist()
     }
