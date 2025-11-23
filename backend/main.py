@@ -42,10 +42,10 @@ def createCO(params: Params):
     global disk
     global disktype
     if params.mdot <1:
-        disk = ShakuraSunyaevDisk(CO, params.mdot, alpha=params.alpha, Wrphi_in=params.innerTorque, N=500000)
+        disk = ShakuraSunyaevDisk(CO, params.mdot, alpha=params.alpha, Wrphi_in=params.innerTorque, N=10000)
         disktype = "SS73"
     else:
-        disk = CompositeDisk(InnerDisk, CO=CO, mdot=params.mdot, alpha=params.alpha, Wrphi_in=params.innerTorque, N=200000)
+        disk = CompositeDisk(InnerDisk, CO=CO, mdot=params.mdot, alpha=params.alpha, Wrphi_in=params.innerTorque, N=10000)
         disktype = "Outflows"
     return {
         "LEdd": LEdd, 
@@ -56,6 +56,7 @@ def createCO(params: Params):
         "Qrad": (disk.Qrad / disk.Qvis).tolist(),
         "Qadv": (disk.Qadv / disk.Qvis).tolist(),
         "vr": (disk.vr / ccgs).tolist(),
+        "Ltot": (disk.L()/LEdd)
        # "T": (disk.T / 1e8).tolist()
     }
 
@@ -67,7 +68,7 @@ def changeMdot(params: MdotParams):
     if params.mdot <1:
         disk.mdot = params.mdot
     elif (disktype=="SS73"):
-        newdisk = CompositeDisk(InnerDisk, CO=CO, mdot=params.mdot, alpha=disk.alpha, Wrphi_in=disk.Wrphi_in, N=200000)
+        newdisk = CompositeDisk(InnerDisk, CO=CO, mdot=params.mdot, alpha=disk.alpha, Wrphi_in=disk.Wrphi_in, N=10000)
     else:
         disk.mdot = params.mdot
     
@@ -78,6 +79,7 @@ def changeMdot(params: MdotParams):
         "Qrad": (disk.Qrad / disk.Qvis).tolist(),
         "Qadv": (disk.Qadv / disk.Qvis).tolist(),
         "vr": (disk.vr / ccgs).tolist(),
+        "Ltot": (disk.L()/disk.CO.LEdd),
         #"T": (disk.T / 1e8).tolist()
     }
 
@@ -117,6 +119,7 @@ def changeMass(params: MassParams):
         "Qrad": (disk.Qrad / disk.Qvis).tolist(),
         "Qadv": (disk.Qadv / disk.Qvis).tolist(),
         "vr": (disk.vr / ccgs).tolist(),
+        "Ltot": (disk.L()/LEdd),
         #"T": (disk.T / 1e8).tolist()
     }
 
@@ -139,6 +142,7 @@ def changeSpin(params: SpinParams):
         "Mdot": (disk.Mdot / disk.Mdot_0).tolist(),
         "Qrad": (disk.Qrad / disk.Qvis).tolist(),
         "Qadv": (disk.Qadv / disk.Qvis).tolist(),
+        "Ltot": (disk.L()/disk.CO.LEdd),
         "vr": (disk.vr / ccgs).tolist(),
         #"T": (disk.T / 1e8).tolist()
     }
