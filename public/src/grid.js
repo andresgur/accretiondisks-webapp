@@ -36,8 +36,8 @@ export class BasePlot {
                 columns: 2,
                 roworder: "top to bottom",
                 subplots: [['xy', 'x2y2'], ['x3y3', 'x4y4']],
-                xgap: 0.2,
-                ygap: 0.1,
+                xgap: 0.1,
+                ygap: 0.1
             },
             xaxis: {
                 type: "log",
@@ -173,7 +173,7 @@ export class BasePlot {
                 linewidth: 2,
                 exponentformat: "power"
             },
-            margin: { t: 100, r: 10, b: 50, l: 60 },
+            margin: { t: 5, r: 0, b: 0, l: 50 },
             font: {
                 size: 18,
                 family: "DejaVu Sans"
@@ -228,7 +228,7 @@ export class BasePlot {
  * MdotPlot Class
  * Extends BasePlot to handle specific Mdot data and adds a fixed horizontal line at y=1.
  */
-export class HRPlot extends BasePlot {
+export class GridPlot extends BasePlot {
     /**
      * @param {string} plotId - The DOM ID of the Mdot plot container.
      */
@@ -241,7 +241,7 @@ export class HRPlot extends BasePlot {
      * Overrides the base update method to plot Mdot data and add the horizontal line.
      * @param {object} data - The data object containing R and Mdot values.
      */
-    update(x, H, Mdot, Qrad, Qvis, vr) {
+    update(x, H, Mdot, Qrad, Qvis, vr, Rsph = 0) {
 
         var Hdata = {
             x: x,
@@ -266,7 +266,7 @@ export class HRPlot extends BasePlot {
             y: Qrad,
             xaxis: "x3",
             yaxis: "y3",
-            name: "<i>Q</i><sub>rad</sub>",
+            name: "<i>Q</i><sub>rad</sub> / <i>Q</i><sup>+</sup>",
             type: "scatter",
         }
 
@@ -275,7 +275,7 @@ export class HRPlot extends BasePlot {
             y: Qvis,
             xaxis: "x3",
             yaxis: "y3",
-            name: "<i>Q</i><sub>vis</sub>",
+            name: "<i>Q</i><sub>vis</sub> / <i>Q</i><sup>+</sup>",
             type: "scatter",
         }
 
@@ -290,8 +290,49 @@ export class HRPlot extends BasePlot {
 
         const data = [Hdata, Mdotdata, Qraddata, Qvisdata, vrdata]
 
+        var newlayout;
+        // 1. Define the horizontal line shape
+        if (Rsph > 0) {
+            console.log("Plotting Rsph")
+            const verticalRsph = this.createVerticalLine("x", Rsph);
+            const verticalRsph2 = this.createVerticalLine("x2", Rsph);
+
+            newlayout = {
+                ...this.layout,
+
+                // Initialize or append to the shapes array
+                shapes: [
+                    ...(this.layout.shapes || []), // Preserve any existing shapes
+                    verticalRsph, verticalRsph2                 // Add the new shape
+                ]
+            };
+        } else {
+            newlayout = this.layout;
+            console.log("No Rsph")
+        }
 
         // 3. Update the plot with new data and the new layout
-        Plotly.react(this.plotId, data, this.layout);
+        Plotly.react(this.plotId, data, newlayout);
+    }
+
+    createVerticalLine(xaxis, xpos) {
+        const line = {
+            type: "line",
+            // The line spans the entire plot horizontally (from paper x=0 to x=1)
+            xref: xaxis,
+            x0: xpos,
+            x1: xpos,
+            // The line's vertical position is anchored to the data value y=1
+            yref: "paper",
+            y0: 0.,
+            y1: 1.,
+            layer: "below",
+            line: {
+                color: 'black',
+                dash: "dash",
+                width: 1
+            }
+        };
+        return line
     }
 }
