@@ -1,9 +1,9 @@
 import { ParameterMenu } from './parameterMenu.js';
-import { HRPlot } from './grid.js'
+import { GridPlot } from './grid.js'
 
 
 let parameterMenu;
-let HRplot;
+let gridPlot;
 let Mdotplot;
 let Qvisplot;
 let densityPlot;
@@ -26,8 +26,8 @@ function init() {
 
     console.log("Initializing Plotly plot...");
 
-    if (!HRplot) {
-        HRplot = new HRPlot("H_R", "<i>H/R</i>");
+    if (!gridPlot) {
+        gridPlot = new GridPlot("grid");
     }
     /*
     if (!Mdotplot) {
@@ -35,7 +35,7 @@ function init() {
     }
 
     /*if (!densityPlot) {
-        densityPlot = new HRPlot("density", "<i>&#961;</i> (g/cm<sup>3</sup>)");
+        densityPlot = new gridPlot("density", "<i>&#961;</i> (g/cm<sup>3</sup>)");
     }
 
     if (!Qvisplot) {
@@ -46,8 +46,8 @@ function init() {
 
     if (!parameterMenu) {
         parameterMenu = new ParameterMenu((data => {
-
-           HRplot.update(data.R, data.H, data.Mdot, data.Qrad, data.Qadv, data.vr);
+            console.log(data.Rsph)
+           gridPlot.update(data.R, data.H, data.Mdot, data.Qrad, data.Qadv, data.vr, data.Rsph);
             //Mdotplot.update(data.R, data.Mdot);
            // Qvisplot.update(data.R, data.Qrad)
             //densityPlot.update(data.R, data.rho)
