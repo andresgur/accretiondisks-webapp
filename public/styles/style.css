@@ -15,9 +15,7 @@
             align-items: flex-start; /* stick content to the top */
             height: 100%;
             justify-content: space-between; /* spread items across the width with the menus on the sides*/
-            /* Left menu + Main content + menu */
-            gap: 5px;
-            overflow-x: hidden;
+            gap: 5px;/* Left menu + Main content + menu */
             padding: 10px; /* space between the borders and the inner childs i.e. the menu to the left top and the right plot to the right and bottom*/
             box-sizing: border-box;
         }
@@ -30,7 +28,7 @@
             padding: 15px;
             /* spacing between elements and "walls" of menu */
             border: 2px solid black;
-            border-radius: 5px;
+            border-radius: 10px;
             background-color: white;
             /* Full width of the column */
             box-sizing: border-box;
@@ -38,13 +36,11 @@
         }
 
         .menu-container {
-            flex:1;
+            
             display: flex;
             flex-direction: column;
             color: black;
-            gap: 20px;
-
-            /* Vertical space between menus */
+            gap: 20px; /* Vertical space between menus */
         }
 
         .menu-section {
@@ -86,22 +82,20 @@
         }
 
                 /* Right-side plot area expands */
-        .plot-area-wrapper {
+       /* .plot-area-wrapper {
             flex: 4; /* Occupy all remaining space */
-            display: flex;
-            flex-direction: row; /* Stack plots vertically */
+            /*display: flex;
             padding: 0px; 
             overflow: auto; /* Allow vertical scrolling if plots exceed height */
-            gap: 10px;
+          /*  gap: 10px;
         }
+        */
 
                 /* Right-side plot area expands */
         .plot-container {
             width: 100%;
             display: flex;
             padding: 0px; /* space between plots */
-            overflow: hidden; /* Clips any content that might exceed boundaries */
-            box-sizing: border-box;
         }
 
          /* Ensure Plotly's internal div uses available space */
@@ -182,23 +176,13 @@
             color: #888;
         }
 
-
         .menu-label {
             font-size: 20px;
             font-weight: bold;
             margin-bottom: 2px;
             margin-top: 20px;
         }
-
-        .axis-label {
-            font-size: 28px;
-            width: 100%;
-            height: 20px;
-            color: black;
-            text-align: center;
-            justify-content: center;
-            font-family: "DejaVu Sans";
-        }
+        
         button:disabled {
             cursor: auto;
         }
