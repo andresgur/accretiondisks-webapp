@@ -1,8 +1,9 @@
 import { ToolTipLabel } from "./toolTipLabel.js";
 
 export class ParameterMenu {
-    constructor(onPlotUpdate) {
+    constructor(onPlotUpdate, onAlphaChanged) {
         this.onPlotUpdate = onPlotUpdate; // Callback to restart the simulation
+        this.onAlphaChanged = onAlphaChanged;
 
         // Initialize menu elements
         this.initParameters()
@@ -16,6 +17,10 @@ export class ParameterMenu {
         this.leddTip = new ToolTipLabel("eddington-luminosity")
         this.RiscoLabel = document.getElementById("isco-radius")
         this.RiscoTip = new ToolTipLabel("isco-radius");
+        this.LtotLabel = document.getElementById("total-luminosity");
+        this.RsphLabel = document.getElementById("spherization-radius");
+        this.Rsphdiv = document.getElementById("rsph-div");
+        this.regimeLabel = document.getElementById("accretion-regime")
         // mass
         this.massInput = document.getElementById("input-mass");
         this.massLabel = new ToolTipLabel("mass");
@@ -35,11 +40,16 @@ export class ParameterMenu {
         this.mdotInput = document.getElementById("input-mdot");
         this.mdot = parseFloat(this.mdotInput.value);
 
+        this.setRegime(this.mdot);
+
         this.createBlackHole();
 
         this.mdotInput.addEventListener("input", (event) => {
             this.mdot = parseFloat(event.target.value);
-            this.updateMdot()
+            if (this.mdot>0) {
+                this.updateMdot()
+
+            }
         });
 
         this.alphaInput.addEventListener("input", (event) => {
@@ -65,26 +75,30 @@ export class ParameterMenu {
 
     async updateMdot() {
         const params = {
-            mdot: this.mdot
+            mdot: this.mdot,
+            alpha: this.alpha
         };
 
-        const res = await fetch("http://localhost:8000/accretiondisk/mdot_change", {
+        const res = await fetch("http://localhost:8000/accretiondisk/update", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(params),
         });
         console.log("Updating mdot");
         const data = await res.json();
+        this.LtotLabel.innerHTML = (data.Ltot).toFixed(1);
+        this.setRegime(this.mdot, data.Rsph);
         this.onPlotUpdate(data); // Trigger simulation update
         console.log("Done");
     }
 
     async updateAlpha() {
         const params = {
+            mdot: this.mdot,
             alpha: this.alpha
         };
 
-        const res = await fetch("http://localhost:8000/accretiondisk/alpha_change", {
+        const res = await fetch("http://localhost:8000/accretiondisk/update", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(params),
@@ -99,7 +113,9 @@ export class ParameterMenu {
     async updateSpin() {
 
         const params = {
-            spin: this.spin
+            spin: this.spin,
+            mdot: this.mdot,
+            alpha: this.alpha
         };
 
         console.log("Updating spin");
@@ -110,7 +126,8 @@ export class ParameterMenu {
         });
         console.log("JSON received")
         const data = await res.json();
-        this.RiscoLabel.innerHTML = (data.Risco / 100000).toFixed(1)
+        this.RiscoLabel.innerHTML = (data.Risco / 100000).toFixed(1);
+        this.LtotLabel.innerHTML = (data.Ltot).toFixed(2);
         this.onPlotUpdate(data); // Trigger simulation update
         console.log("Done");
 
@@ -118,7 +135,10 @@ export class ParameterMenu {
 
     async updateMass() {
         const params = {
-            mass: this.mass
+
+            mass: this.mass,
+            mdot: this.mdot,
+            alpha: this.alpha
         };
 
         const res = await fetch("http://localhost:8000/compactobject/mass_change", {
@@ -131,6 +151,7 @@ export class ParameterMenu {
         console.log("Updating mass");
         this.LEddLabel.innerHTML = (data.LEdd / 10 ** 39).toFixed(1)
         this.RiscoLabel.innerHTML = (data.Risco / 100000).toFixed(1)
+        this.LtotLabel.innerHTML = (data.Ltot).toFixed(2)
         this.onPlotUpdate(data); // Trigger simulation update
         console.log("Done");
     };
@@ -145,7 +166,7 @@ export class ParameterMenu {
             alpha: this.alpha
         };
 
-        const res = await fetch("http://localhost:8000/create_compact_object", {
+        const res = await fetch("http://localhost:8000/init", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(params),
@@ -153,8 +174,9 @@ export class ParameterMenu {
 
         const data = await res.json();
 
-        this.LEddLabel.innerHTML = (data.LEdd / 10 ** 39).toFixed(1)
-        this.RiscoLabel.innerHTML = (data.Risco / 100000).toFixed(1)
+        this.LEddLabel.innerHTML = (data.LEdd / 10 ** 39).toFixed(1);
+        this.RiscoLabel.innerHTML = (data.Risco / 100000).toFixed(1);
+        this.LtotLabel.innerHTML = (data.Ltot).toFixed(2);
         this.onPlotUpdate(data); // Trigger simulation update
         console.log("Done");
 
@@ -170,6 +192,18 @@ export class ParameterMenu {
         this.leddTip.setLanguage(translations);
     }
 
+    setRegime(mdot, Rsph=0) {
 
+        if (mdot < 1) {
+            this.Rsphdiv.classList.add("hidden");
+            this.regimeLabel.innerHTML = "Sub-Eddington";
 
+        } else {
+            this.Rsphdiv.classList.remove("hidden");
+            this.RsphLabel.innerHTML = (Rsph).toFixed(1);
+            this.regimeLabel.innerHTML = "Super-Eddington";
+
+        }
+
+    }
 }
